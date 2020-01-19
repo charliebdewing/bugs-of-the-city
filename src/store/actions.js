@@ -42,6 +42,8 @@ export const addGridItem = ({ commit, state }, payload) => {
 
   let k = { ...{}, ...payload, ...{ x, y, 'i': g } }
   commit('setNewGridItem', k)
+
+  commit('setResources', state.resources)
 }
 
 // Action to remove item from the state through the mutation

@@ -66,10 +66,10 @@ export default {
     },
     dragStart (item) {
       console.log('dragEvent', {eventName: 'dragstart', item})
-      // const eventBus = this.$refs.layout.eventBus
 
       this.setActiveItem({item})
-      // eventBus.$emit('dragStart', { item })
+      const eventBus = this.$refs.layout.eventBus
+      eventBus.$emit({eventName: 'dragstart', item})
     },
     dragEnter (e) {
       console.log('dragEnter', e)

@@ -157,6 +157,7 @@ export default {
         isMirrored: false,
         rowHeight: 30,
         verticalCompact: false,
+        preventCollision: true,
         useCssTransforms: true,
         margin: [5, 5]
       },
@@ -177,51 +178,51 @@ export default {
 
     const eventBus = this.$refs.layout.eventBus
 
-    if (this.main) {
-      console.log(eventBus.$on('dragEvent', (eventName, id, x, y, h, w) => {
-        if (eventName === 'dragstart') {
-          console.log(this.main ? 'main: ' : 'drawer: ', {eventName, id, x, y, h, w})
-          if (this.main) {
-            this.active = true
-            eventBus.$emit('dragEnd')
-            eventBus.$emit('dragStart', { item: this.getActiveItem })
-          }
-        }
-        if (eventName === 'dragmove') {
-          console.log(this.main ? 'main: ' : 'drawer: ', {eventName, id, x, y, h, w})
-          let layoutRect = this.$el.getBoundingClientRect()
+    // eventBus.$on('dragEvent', (eventName, i, x, y, h, w) => {
+    //   if (eventName === 'dragmove') {
+    //     console.log(this.main ? 'main: ' : 'drawer: ', event)
+    //     // this.active = true
+    //     eventBus.$emit('dragEnd')
+    //     eventBus.$emit('dragStart', { item: this.getActiveItem })
+    //   }
+    // })
 
-          let rect = layoutRect
-          let mouse = {x: event.x, y: event.y}
+    // eventBus.$on('dragEvent', (eventName, i, x, y, h, w) => {
+    //   if (eventName === 'dragstart') {
+    //     if (this.main) {
+    //       this.active = true
+    //       eventBus.$emit('dragEnd')
+    //       eventBus.$emit('dragStart', { item: this.getActiveItem })
+    //     }
+    //   }
+    //   if (eventName === 'dragmove') {
+    //     let layoutRect = this.$el.getBoundingClientRect()
 
-          if (mouse.x >= rect.x && mouse.x <= rect.x + rect.width && mouse.y >= rect.y && mouse.y <= rect.y + rect.height) {
-            if (!this.active) {
-              this.active = true
-              console.log('inside')
-              this.addImageGridItem()
-            }
-          } else {
-            console.log(this.main ? 'main: ' : 'drawer: ', {eventName, id, x, y, h, w})
-            if (this.active) {
-              this.active = false
-              console.log('outside')
-              const index = this.resources.findIndex(item => item.i === id)
-              const item = {...{}, ...this.resources[index]}
-              this.$refs.layout.isDragging = false
-              this.$refs.layout.placeholder = {h: 0, i: -1, w: 0, x: 0, y: 0}
+    //     let rect = layoutRect
+    //     let mouse = {x: event.x, y: event.y}
 
-              this.removeItem({ key: index })
+    //     if (mouse.x >= rect.x && mouse.x <= rect.x + rect.width && mouse.y >= rect.y && mouse.y <= rect.y + rect.height) {
+    //       if (!this.active) {
+    //         this.active = true
+    //         this.addGridItem(this.getActiveItem)
+    //       }
+    //     } else {
+    //       if (this.active) {
+    //         this.active = false
+    //         const index = this.resources.findIndex(item => item.i === i)
+    //         this.$refs.layout.isDragging = false
+    //         this.$refs.layout.placeholder = {h: 0, i: -1, w: 0, x: 0, y: 0}
 
-              eventBus.$emit('dragEnd', {item})
-            }
-          }
-        }
-        if (eventName === 'dragend') {
-          this.active = false
-          console.log({eventName, id, x, y, h, w})
-        }
-      }))
-    }
+    //         this.removeItem({ key: index })
+
+    //         eventBus.$emit('dragEvent', {type: 'dragEnd'})
+    //       }
+    //     }
+    //   }
+    //   if (eventName === 'dragend') {
+    //     console.log({eventName, i, x, y, h, w})
+    //   }
+    // })
   },
   methods: {
     ...mapActions([
@@ -260,7 +261,7 @@ export default {
       console.log('resizeEvent', e)
     },
     moveEvent (item) {
-      this.setActiveItem({ item })
+      // this.setActiveItem({ item })
       console.log('moveEvent', item.i)
       // console.log('moveEvent', item, this.getActiveItem)
     },
@@ -276,11 +277,11 @@ export default {
     dragEnter (e) {
       // const eventBus = this.$refs.layout.eventBus
       console.log('dragEnter', e)
-      if (!this.active) {
-        this.active = false
-        this.addGridItem(this.getActiveItem)
-        this.$emit('dragEnd')
-      }
+      // if (!this.active) {
+      //   this.active = false
+      //   this.addGridItem(this.getActiveItem)
+      //   this.$emit('dragEnd')
+      // }
     }
   }
 }
