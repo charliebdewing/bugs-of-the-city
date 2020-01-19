@@ -6,7 +6,19 @@
 
 <script>
 export default {
-  name: 'app'
+  name: 'app',
+
+  methods: {
+
+  },
+
+  mounted () {
+    console.log(this.$root)
+
+    this.$root.$on('test', () => {
+      console.log('test')
+    })
+  }
 }
 </script>
 

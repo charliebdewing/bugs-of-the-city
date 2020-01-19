@@ -6,7 +6,34 @@
 <script>
 import { mapActions } from 'vuex'
 export default {
-  props: ['preview', 'contenteditable', 'item', 'itemIndex'],
+  props: {
+    preview: {
+      type: Boolean,
+      default: true
+    },
+    contenteditable: {
+      type: Boolean,
+      default: false
+    },
+    item: {
+      type: Object,
+      default: () => {
+        return {
+          x: 0,
+          y: 0,
+          w: 4,
+          h: 4,
+          i: 0,
+          type: 'content',
+          content: 'Content goes here'
+        }
+      }
+    },
+    itemIndex: {
+      type: Number,
+      default: 0
+    }
+  },
   methods: {
     ...mapActions([
       'saveItem'

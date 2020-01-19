@@ -1,5 +1,5 @@
 <template>
-  <div  :style="getStyle" >
+  <div :style="getStyle" >
     <div v-if="!preview" @click="editImage = !editImage" class="preview">
       <i v-if="!editImage" class="fa fa-pencil" aria-hidden="true"></i>
       <i v-else="!editImage" class="fa fa-times" aria-hidden="true"></i>
@@ -10,7 +10,34 @@
 <script>
 import { mapActions } from 'vuex'
 export default {
-  props: ['preview', 'contenteditable', 'item', 'itemIndex'],
+  props: {
+    preview: {
+      type: Boolean,
+      default: true
+    },
+    contenteditable: {
+      type: Boolean,
+      default: false
+    },
+    item: {
+      type: Object,
+      default: () => {
+        return {
+          x: 0,
+          y: 0,
+          w: 4,
+          h: 4,
+          i: 0,
+          type: 'image',
+          location: 'http://via.placeholder.com/600x350' }
+      }
+    },
+    itemIndex: {
+      type: Number,
+      default: 0
+    }
+  },
+
   data () {
     return {
       editImage: false
@@ -35,14 +62,35 @@ export default {
 
 <style scoped>
   .preview {
-    position: absolute; 
-    left: 4px; 
+    position: absolute;
+    left: 4px;
     top: 2px;
   }
 
   .edit {
-    padding-left: 20px; 
+    padding-left: 20px;
     width: 100%;
   }
 
 </style>
+
+
+// export const addTitleGridItem = ({ commit, state }, payload) => {
+//   let g = lib.guid()
+//   let k = { 'x': 0, 'y': 0, 'w': 4, 'h': 2, 'i': g, 'type': 'title', 'title': 'Heading 1', 'headings': { 'h1': false, 'h2': false, 'h3': false } }
+//   commit('setNewGridItem', k)
+// }
+
+// // Action to add content grid item in the state through the mutation
+// export const addContentGridItem = ({ commit, state }, payload) => {
+//   let g = lib.guid()
+//   let k = { 'x': 0, 'y': 0, 'w': 4, 'h': 3, 'i': g, 'type': 'content', 'content': 'Content goes here' }
+//   commit('setNewGridItem', k)
+// }
+
+// // Action to add image grid item in the state through the mutation
+// export const addImageGridItem = ({ commit, state }, payload) => {
+//   let g = lib.guid()
+//   let k = { 'x': 0, 'y': 0, 'w': 4, 'h': 4, 'i': g, 'type': 'image', 'location': 'http://via.placeholder.com/600x350' }
+//   commit('setNewGridItem', k)
+// }

@@ -73,7 +73,7 @@ import { mapGetters, mapActions } from 'vuex'
 import TextWidget from './TextWidget'
 import TextAreaWidget from './TextAreaWidget'
 import ImageWidget from './ImageWidget'
-import { GridItem, GridLayout } from 'vue-grid-layout'
+import { GridLayout, GridItem } from 'vue-grid-layout'
 import GridView from './GridView'
 
 export default {
@@ -274,7 +274,6 @@ export default {
       console.log('movedEvent', e)
     },
     dragEnter (e) {
-      // const eventBus = this.$refs.layout.eventBus
       console.log('dragEnter', e)
       if (!this.active) {
         this.active = false
