@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div class="container">
     <aside>
       <div
         v-for="(item, idx) in templateItems"
@@ -22,7 +22,7 @@
           :is-draggable="true"
           :is-resizable="true"
           :is-mirrored="false"
-          :vertical-compact="true"
+          :vertical-compact="false"
           :margin="colMargin"
           :use-css-transforms="true"
         >
@@ -100,7 +100,8 @@ export default {
     let position = { x: 0, y: 0 }
     let activeGrid = null
     let activeItem = null
-    interact('.item').draggable({
+
+    interact('.item-template').draggable({
       inertia: true,
       listeners: {
         start(event) {
