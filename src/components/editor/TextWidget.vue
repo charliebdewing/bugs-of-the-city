@@ -1,22 +1,33 @@
 <template>
   <div v-if="item.type == 'title'">
     <div style="position: absolute; top: 5px; right: 1%;">
-      <span v-if="!preview" @click="hVisible = !hVisible" style="cursor: pointer;">
-        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+      <span v-if="!preview" style="cursor: pointer;" @click="hVisible = !hVisible">
+        <i class="fa fa-ellipsis-v" aria-hidden="true" />
       </span>
-      <div class="btn-group btn-group-sm" v-if="!preview && hVisible" v-for="(heading, key) in item.headings" @click="changeToHeading({headingKey: key})"
-         title="Change Heading">
-          <button type="button" class="btn btn-primary" style="cursor: pointer;"> {{ key }} </button>
+      <div
+        v-for="(heading, key) in item.headings"
+        v-if="!preview && hVisible"
+        class="btn-group btn-group-sm"
+        title="Change Heading"
+        @click="changeToHeading({headingKey: key})"
+      >
+        <button type="button" class="btn btn-primary" style="cursor: pointer;"> {{ key }} </button>
       </div>
     </div>
-    <div :id="item.i" :contenteditable="contenteditable" style="padding:6px 10px;" v-on:paste.prevent="pasteData"
-    v-model="item.title" @blur="save"
-          :class="[{ 'heading1': item.headings.h1,
-            'heading2': item.headings.h2,
-            'heading3': item.headings.h3,
-            }]" >
-            {{ item.title }}
-      </div>
+    <div
+      :id="item.i"
+      v-model="item.title"
+      :contenteditable="contenteditable"
+      style="padding: 6px 10px;"
+      :class="[{ 'heading1': item.headings.h1,
+                 'heading2': item.headings.h2,
+                 'heading3': item.headings.h3,
+      }]"
+      @paste.prevent="pasteData"
+      @blur="save"
+    >
+      {{ item.title }}
+    </div>
   </div>
 </template>
 <script>
@@ -50,7 +61,7 @@ export default {
       default: 0
     }
   },
-  data () {
+  data() {
     return {
       hVisible: false
     }
@@ -60,11 +71,11 @@ export default {
       'saveHeadings',
       'saveItem'
     ]),
-    changeToHeading (data) {
+    changeToHeading(data) {
       const updatedHeadingSelection = map(this.item.headings, (item, key) => key === data.headingKey)
       this.saveHeadings({ values: updatedHeadingSelection, itemIndex: this.itemIndex })
     },
-    save (e) {
+    save(e) {
       this.item.title = e.target.innerText
       this.saveItem({ item: this.item, index: this.itemIndex })
     }
@@ -74,6 +85,6 @@ export default {
 
 <style scoped>
   [contenteditable]:focus {
-    outline: 0px solid transparent;
+    outline: 0 solid transparent;
   }
 </style>

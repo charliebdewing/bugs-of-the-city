@@ -1,25 +1,69 @@
-// https://eslint.org/docs/user-guide/configuring
-
 module.exports = {
   root: true,
-  parser: 'babel-eslint',
-  parserOptions: {
-    sourceType: 'module'
-  },
   env: {
-    browser: true,
+    node: true
   },
-  // https://github.com/standard/standard/blob/master/docs/RULES-en.md
-  extends: 'standard',
-  // required to lint *.vue files
-  plugins: [
-    'html'
+  'extends': [
+    'plugin:vue/recommended',
+    '@vue/standard'
   ],
-  // add your custom rules here
   rules: {
-    // allow async-await
-    'generator-star-spacing': 'off',
-    // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
+    'no-console': process.env.NODE_ENV === 'production' && !process.env.ATOM_HOME ? 'error' : 'off',
+    'no-debugger': process.env.NODE_ENV === 'production' && !process.env.ATOM_HOME ? 'error' : 'off',
+    'no-multiple-empty-lines': [
+      'error', {
+        'max': 2,
+        'maxEOF': 1
+      }
+    ],
+    'no-unused-vars': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'space-before-function-paren': [
+      'error',
+      'never'
+    ],
+    'semi': [
+      'error',
+      'never'
+    ],
+    'quotes': [
+      'error',
+      'single'
+    ],
+    'no-trailing-spaces': [
+      'error', {
+        'skipBlankLines': true
+      }
+    ],
+    'vue/max-attributes-per-line': ['error', {
+      'singleline': 3
+    }],
+    'vue/component-name-in-template-casing': [
+      'error',
+      'kebab-case'
+    ],
+    'object-shorthand': [
+      'error',
+      'always'
+    ],
+    'vue/no-v-html': 'off',
+    'vue/singleline-html-element-content-newline': 'off',
+    'vue/attributes-order': ['error', {
+      'order': [
+        'LIST_RENDERING',
+        'DEFINITION',
+        'CONDITIONALS',
+        'RENDER_MODIFIERS',
+        'GLOBAL',
+        'UNIQUE',
+        'TWO_WAY_BINDING',
+        'OTHER_DIRECTIVES',
+        'OTHER_ATTR',
+        'EVENTS',
+        'CONTENT'
+      ]
+    }]
+  },
+  parserOptions: {
+    parser: 'babel-eslint'
   }
 }

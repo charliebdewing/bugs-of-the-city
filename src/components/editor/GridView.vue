@@ -1,25 +1,18 @@
 <template>
-  <div>
-    <div style="text-align: center;">
-      <span v-if="!preview">
-        <button class="btn btn-outline-primary" @click="addTitleGridItem">
-          H1
-        </button>
-        <button class="btn btn-outline-primary" @click="addContentGridItem">
-          Content
-        </button>
-        <button class="btn btn-outline-primary" @click="addImageGridItem">
-          Image
-        </button>
-      </span>
-      <button class="btn btn-outline-primary" @click="disableGrid">
-        <span v-if="preview"> Edit </span>
-        <span v-else> Preview </span>
-      </button>
-    </div>
-    <hr />
-    <div @mouseenter="mouseEnter" @mouseout="mouseLeave" @dragenter.prevent.stop="dragEnter">
-    <grid-layout ref="layout" v-bind="config" :layout="resources">
+<div class="grid-view"
+      @ondragover="onDragOver"
+      :isDroppable="true"
+>
+    <grid-layout
+      ref="layout"
+      v-bind="config"
+      :layout.sync="resources"
+      @layout-created="layoutCreated"
+      @layout-before-mount="layoutBeforeMount"
+      @layout-mounted="layoutMounted"
+      @layout-ready="layoutReady"
+      @layout-updated="layoutUpdated"
+    >
       <grid-item
         v-for="(item, index) in resources"
         :key="index"
@@ -36,7 +29,7 @@
         <div
           v-if="!preview"
           @click="removeItem({ key: index })"
-          style="position: absolute; bottom: 0px; left: 4px;"
+          style="position: absolute; bottom: 0; left: 4px;"
         >
           <i class="fa fa-trash" aria-hidden="true"></i>
         </div>
@@ -55,17 +48,10 @@
           :item="item"
           :itemIndex="index"
         ></text-area-widget>
-
-        <image-widget
-          v-if="item.type == 'image'"
-          :preview="preview"
-          :contenteditable="contenteditable"
-          :item="item"
-          :itemIndex="index"
-        ></image-widget>
       </grid-item>
     </grid-layout>
-  </div>
+
+    <!-- <placeholder @selected="selected" /> -->
   </div>
 </template>
 <script>
@@ -73,8 +59,10 @@ import { mapGetters, mapActions } from 'vuex'
 import TextWidget from './TextWidget'
 import TextAreaWidget from './TextAreaWidget'
 import ImageWidget from './ImageWidget'
+import Placeholder from './Placeholder'
 import { GridItem, GridLayout } from 'vue-grid-layout'
-import GridView from './GridView'
+
+import {cloneDeep} from 'lodash'
 
 export default {
   name: 'gridview',
@@ -141,12 +129,12 @@ export default {
   },
 
   components: {
-    GridView,
     GridLayout,
     GridItem,
     TextWidget,
     TextAreaWidget,
-    ImageWidget
+    ImageWidget,
+    Placeholder
   },
   data () {
     return {
@@ -157,13 +145,12 @@ export default {
         isMirrored: false,
         rowHeight: 30,
         verticalCompact: false,
-        preventCollision: true,
-        useCssTransforms: true,
         margin: [5, 5]
       },
       preview: true,
       contenteditable: false,
-      active: false
+      active: false,
+      resourcesClone: []
     }
   },
   computed: {
@@ -176,54 +163,13 @@ export default {
 // Toggle Grid on
     this.disableGrid()
 
-    const eventBus = this.$refs.layout.eventBus
-
-    // eventBus.$on('dragEvent', (eventName, i, x, y, h, w) => {
-    //   if (eventName === 'dragmove') {
-    //     console.log(this.main ? 'main: ' : 'drawer: ', event)
-    //     // this.active = true
-    //     eventBus.$emit('dragEnd')
-    //     eventBus.$emit('dragStart', { item: this.getActiveItem })
-    //   }
-    // })
-
-    // eventBus.$on('dragEvent', (eventName, i, x, y, h, w) => {
-    //   if (eventName === 'dragstart') {
-    //     if (this.main) {
-    //       this.active = true
-    //       eventBus.$emit('dragEnd')
-    //       eventBus.$emit('dragStart', { item: this.getActiveItem })
-    //     }
-    //   }
-    //   if (eventName === 'dragmove') {
-    //     let layoutRect = this.$el.getBoundingClientRect()
-
-    //     let rect = layoutRect
-    //     let mouse = {x: event.x, y: event.y}
-
-    //     if (mouse.x >= rect.x && mouse.x <= rect.x + rect.width && mouse.y >= rect.y && mouse.y <= rect.y + rect.height) {
-    //       if (!this.active) {
-    //         this.active = true
-    //         this.addGridItem(this.getActiveItem)
-    //       }
-    //     } else {
-    //       if (this.active) {
-    //         this.active = false
-    //         const index = this.resources.findIndex(item => item.i === i)
-    //         this.$refs.layout.isDragging = false
-    //         this.$refs.layout.placeholder = {h: 0, i: -1, w: 0, x: 0, y: 0}
-
-    //         this.removeItem({ key: index })
-
-    //         eventBus.$emit('dragEvent', {type: 'dragEnd'})
-    //       }
-    //     }
-    //   }
-    //   if (eventName === 'dragend') {
-    //     console.log({eventName, i, x, y, h, w})
-    //   }
-    // })
+    this.resourcesClone = cloneDeep(this.resources)
   },
+
+  watch: {
+
+  },
+
   methods: {
     ...mapActions([
       'setResources',
@@ -241,23 +187,36 @@ export default {
       this.contenteditable = !this.contenteditable
     },
 
-    // Layout events
-    mouseEnter (e) {
-      console.log('mouseEnter', this.main ? 'main' : 'drawer')
-      // this.active = true
-      console.log(!this.getActiveItem)
-
-      if (!this.getActiveItem) {
-        console.log('No active Item')
-      }
+    selected (type) {
     },
-    mouseLeave (e) {
-      console.log('mouseLeave', this.main ? 'main' : 'drawer')
-      // this.active = false
+
+    // Layout events
+
+    layoutCreated(e) {
+      console.log('layoutCreated', e)
+    },
+    layoutBeforeMount(e) {
+      console.log('layoutBeforeMount', e)
+    },
+    layoutMounted(e) {
+      console.log('layoutMounted', e)
+    },
+    layoutReady(e) {
+      console.log('layoutReady', e)
+    },
+    layoutUpdated(e) {
+      console.log('layoutUpdated', e)
+    },
+    onDrop(e) {
+      console.log('onDrop', e)
+    },
+    onDragOver(e) {
+      e.preventDefault()
+      console.log('onDragOver', e)
     },
 
     // Item events
-    resizeEvent (e) {
+    resizeEvent(e) {
       console.log('resizeEvent', e)
     },
     moveEvent (item) {
@@ -265,16 +224,16 @@ export default {
       console.log('moveEvent', item.i)
       // console.log('moveEvent', item, this.getActiveItem)
     },
-    resizedEvent (e) {
+    resizedEvent(e) {
       console.log('resizedEvent', e)
     },
-    containerResizedEvent (e) {
+    containerResizedEvent(e) {
       // console.log('containerResizedEvent', e)
     },
-    movedEvent (e) {
+    movedEvent(e) {
       console.log('movedEvent', e)
     },
-    dragEnter (e) {
+    dragEnter(e) {
       // const eventBus = this.$refs.layout.eventBus
       console.log('dragEnter', e)
       // if (!this.active) {
@@ -283,6 +242,7 @@ export default {
       //   this.$emit('dragEnd')
       // }
     }
+
   }
 }
 </script>
@@ -291,18 +251,21 @@ export default {
   background-color: #fafafa;
   border-radius: 5px;
 }
+
 .site-title {
   font-family: "Lilita One", cursive;
   font-size: 50px;
   color: #f48fb1;
   text-align: center;
 }
+
 .heading1 {
   font-family: "Crushed", cursive;
   font-size: 35px;
   border: none;
   color: #2196f3;
 }
+
 .heading2 {
   font-family: "Patrick Hand", cursive;
   font-size: 20px;
@@ -312,6 +275,7 @@ export default {
   width: 100%;
   padding: 10px 5px;
 }
+
 .heading3 {
   font-family: "Homemade Apple", cursive;
   font-size: 20px;
@@ -319,9 +283,16 @@ export default {
   color: #66d2b3;
   padding: 0 7px;
 }
+
 .content {
   font-family: "Patrick Hand", cursive;
   font-size: 20px;
   color: #2196f3;
 }
+
+
+.placeholder-wrapper {
+  transform: translate;
+}
+
 </style>

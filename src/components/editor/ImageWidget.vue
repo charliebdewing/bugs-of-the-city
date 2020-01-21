@@ -1,8 +1,8 @@
 <template>
   <div :style="getStyle" >
     <div v-if="!preview" @click="editImage = !editImage" class="preview">
-      <i v-if="!editImage" class="fa fa-pencil" aria-hidden="true"></i>
-      <i v-else="!editImage" class="fa fa-times" aria-hidden="true"></i>
+      <i v-if="!editImage" class="fa fa-pencil" aria-hidden="true" />
+      <i v-else="!editImage" class="fa fa-times" aria-hidden="true" />
     </div>
     <input v-if="editImage" type="text" v-model="item.location" @blur="save" class="edit">
   </div>
@@ -38,7 +38,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       editImage: false
     }
@@ -52,7 +52,7 @@ export default {
     ...mapActions([
       'saveItem'
     ]),
-    save (e) {
+    save(e) {
       this.item.location = e.target.value
       this.saveItem({ item: this.item, index: this.itemIndex })
     }
@@ -73,24 +73,3 @@ export default {
   }
 
 </style>
-
-
-// export const addTitleGridItem = ({ commit, state }, payload) => {
-//   let g = lib.guid()
-//   let k = { 'x': 0, 'y': 0, 'w': 4, 'h': 2, 'i': g, 'type': 'title', 'title': 'Heading 1', 'headings': { 'h1': false, 'h2': false, 'h3': false } }
-//   commit('setNewGridItem', k)
-// }
-
-// // Action to add content grid item in the state through the mutation
-// export const addContentGridItem = ({ commit, state }, payload) => {
-//   let g = lib.guid()
-//   let k = { 'x': 0, 'y': 0, 'w': 4, 'h': 3, 'i': g, 'type': 'content', 'content': 'Content goes here' }
-//   commit('setNewGridItem', k)
-// }
-
-// // Action to add image grid item in the state through the mutation
-// export const addImageGridItem = ({ commit, state }, payload) => {
-//   let g = lib.guid()
-//   let k = { 'x': 0, 'y': 0, 'w': 4, 'h': 4, 'i': g, 'type': 'image', 'location': 'http://via.placeholder.com/600x350' }
-//   commit('setNewGridItem', k)
-// }

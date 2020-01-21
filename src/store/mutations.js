@@ -19,7 +19,7 @@ export const removeItem = (state, payload) => {
 
 // Mutation to update item in resources
 export const setUpdatedItem = (state, response) => {
-  Vue.$set(state.resources, response.itemIndex, response.item)
+  Vue.set(state.resources, response.itemIndex, response.item)
 }
 
 // Mutation to update item in resources

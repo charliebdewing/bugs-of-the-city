@@ -1,5 +1,11 @@
 <template>
-  <div :contenteditable="contenteditable" v-on:paste.prevent="pasteData" style="padding:5px 10px;" class="content" @blur="save">
+  <div
+    :contenteditable="contenteditable"
+    style="padding: 5px 10px;"
+    class="content"
+    @paste.prevent="pasteData"
+    @blur="save"
+  >
     {{ item.content }}
   </div>
 </template>
@@ -38,10 +44,10 @@ export default {
     ...mapActions([
       'saveItem'
     ]),
-    pasteData (e) {
+    pasteData(e) {
       this.item.content = e.clipboardData.getData('text/plain')
     },
-    save (e) {
+    save(e) {
       this.item.content = e.target.innerText
       this.saveItem({ item: this.item, index: this.itemIndex })
     }
@@ -51,6 +57,6 @@ export default {
 
 <style scoped>
   [contenteditable]:focus {
-    outline: 0px solid transparent;
+    outline: 0 solid transparent;
   }
 </style>

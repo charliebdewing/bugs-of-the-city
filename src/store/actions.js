@@ -34,16 +34,25 @@ export const addGridItem = ({ commit, state }, payload) => {
   let g = lib.guid()
   console.log('payload', payload)
 
-  const x = 0
-  const y = state.resources.reduce((acc, item) => {
-    Math.max(acc, item.y)
-  })
-  payload.y = y
+  const bottomObj = state.resources.reduce((acc, item, index) =>
+    item.y + item.h > acc.y + acc.h ? item
+      : item.x + item.w > acc.x + acc.w ? item : acc
+  )
+
+  let x = bottomObj.x
+  let y = bottomObj.y
+
+  if (x + bottomObj.w + payload.w < 12) {
+    x = x + bottomObj.w
+  } else {
+    x = 0
+    y = bottomObj.y + bottomObj.h
+  }
 
   let k = { ...{}, ...payload, ...{ x, y, 'i': g } }
   commit('setNewGridItem', k)
 
-  commit('setResources', state.resources)
+  // commit('setResources', state.resources)
 }
 
 // Action to remove item from the state through the mutation

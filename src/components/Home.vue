@@ -1,40 +1,43 @@
 <template>
   <div class="container">
-    <div style="width: 930px; margin: 0 auto;">
-      <grid-view ref="main" @dragEnd="dropItem" :main="true" :resources="getResources" />
-      <div style="background: #FCE4EC; text-align: center; padding: 50px; margin: 50px 0; border-radius: 5px;">
-        <h4> Grid Layout Editor made with <strong>Vue Js</strong> using <strong>Vue Grid Layout</strong> </h4>
-        <div> Check out same project built with
-           <strong><a href="http://gridstack.surge.sh/#/" target="_blank">GridStack.js</a></strong> for an eLearning use case.
-        </div>
-        <div> This R&amp;D project is developed to test grid-layout library for
-          <strong> <a href="https://www.pariksha.io" target="_blank"> pariksha.io</a></strong>.
-        </div>
-        <div> Read <strong><a href="https://medium.com/@krutie/grid-layout-editor-for-vue-js-a-research-project-for-pariksha-io-e3445025d21e" target="_blank"> supporting medium article </a></strong> to learn more. </div>
-      </div>
+    <div>
+      <new-grid-view
+        ref="main"
+        :layout="getResources"
+        :main="true"
+        @dragEnd="dropItem"
+      />
     </div>
-    <div class="drawer">
-      <div v-for="(item, index) in drawer" class="wrapper"
-      @mousedown="itemClicked(item)"
-       >
+    <div
+      class="drawer"
+      :class="{hide: !drawerActive}"
+      @mouseenter="drawerActive = true"
+      @mouseleave="drawerActive = false"
+    >
+      <div
+        v-for="(item, index) in drawer"
+        :key="`item-${index}`"
+        class="wrapper"
+      >
+        <!-- @mousedown="itemClicked(item)" -->
         <!-- <image-widget /> -->
         <text-widget
           v-if="item.type == 'title'"
           :item="item"
-          :itemIndex="index"
-        ></text-widget>
+          :item-index="index"
+        />
 
         <text-area-widget
           v-if="item.type == 'content'"
           :item="item"
-          :itemIndex="index"
-        ></text-area-widget>
+          :item-index="index"
+        />
 
         <image-widget
           v-if="item.type == 'image'"
           :item="item"
-          :itemIndex="index"
-        ></image-widget>
+          :item-index="index"
+        />
       </div>
     </div>
   </div>
@@ -42,71 +45,17 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import GridView from './editor/GridView'
+import NewGridView from './editor/NewGridView'
 
 import TextWidget from './editor/TextWidget'
 import TextAreaWidget from './editor/TextAreaWidget'
 import ImageWidget from './editor/ImageWidget'
 
 export default {
-  name: 'home',
-  components: {GridView, TextWidget, TextAreaWidget, ImageWidget},
-  methods: {
-    ...mapActions({
-      fetchResources: 'fetchResources',
-      setActiveItem: 'setActiveItem',
-      addGridItem: 'addGridItem'
-    }),
-    itemClicked (item) {
-      console.log('itemClicked', item)
-      this.addGridItem(item)
-      const eventBus = this.$refs.main.$refs.layout.eventBus
+  name: 'Home',
+  components: { NewGridView, TextWidget, TextAreaWidget, ImageWidget },
 
-      eventBus.$emit('dragStart', { item })
-    },
-    dragStart (item) {
-      console.log('dragEvent', {eventName: 'dragstart', item})
-
-      this.setActiveItem({item})
-      const eventBus = this.$refs.layout.eventBus
-      eventBus.$emit({eventName: 'dragstart', item})
-    },
-    dragEnter (e) {
-      console.log('dragEnter', e)
-      console.log('app')
-    },
-    dragOver (e) {
-      console.log('dragOver', e)
-    },
-    dragEnd (e) {
-      console.log('dragEnd', e)
-
-      // const eventBus = this.$refs.layout.eventBus
-      // eventBus.$emit('dragStart', { item: this.getActiveItem })
-    },
-    drag (e) {
-      // console.log('drag', e)
-    },
-    drop (e) {
-      e.preventDefault()
-      console.log('drop', e)
-    },
-
-    dropItem () {
-      console.log('dropItem')
-
-      this.isDraggable = false
-
-      this.$nextTick(() => {
-        // this.isDraggable = true
-      })
-    }
-  },
-  created () {
-    this.fetchResources()
-  },
-
-  data () {
+  data() {
     return {
       isDraggable: true,
       drawer: [
@@ -156,14 +105,76 @@ export default {
           location: 'http://vue-grid-layout.surge.sh/static/monarch-04.png',
           moved: false
         }
-      ]
+      ],
+      drawerActive: false
     }
   },
+
 
   computed: {
     ...mapGetters([
       'getResources'
     ])
+  },
+
+
+  created() {
+    this.fetchResources()
+  },
+
+  methods: {
+    ...mapActions({
+      fetchResources: 'fetchResources',
+      setActiveItem: 'setActiveItem',
+      addGridItem: 'addGridItem'
+    }),
+    itemClicked(item) {
+      console.log('itemClicked', item)
+      this.addGridItem(item)
+      // const eventBus = this.$refs.main.$refs.layout.eventBus
+
+      // eventBus.$emit('dragStart', { item })
+    },
+    dragStart(item) {
+      // console.log('dragEvent', {eventName: 'dragstart', item})
+
+      // this.setActiveItem({item})
+      // const eventBus = this.$refs.layout.eventBus
+      // eventBus.$emit({eventName: 'dragstart', item})
+    },
+    dragEnter(e) {
+      console.log('dragEnter', e)
+      console.log('app')
+    },
+    dragOver(e) {
+      console.log('dragOver', e)
+    },
+    dragEnd(e) {
+      console.log('dragEnd', e)
+
+      // const eventBus = this.$refs.layout.eventBus
+      // eventBus.$emit('dragStart', { item: this.getActiveItem })
+    },
+    drag(e) {
+      // console.log('drag', e)
+    },
+    drop(e) {
+      e.preventDefault()
+      console.log('drop', e)
+    },
+
+    dropItem(e) {
+      console.log('dropItem', e)
+    },
+
+    // Drawer
+    onDragStart(positionDiff, absolutePosition, event) {
+      console.log(event)
+
+      // console.log('left corner', absolutePosition.left)
+      // console.log('top corner', absolutePosition.top)
+    }
+
   }
 }
 </script>
@@ -180,9 +191,19 @@ export default {
   flex-direction: column;
   justify-content: flex-start;
   user-select: none;
+  transition: left 0.25s ease-in-out;
+}
+
+.drawer.hide {
+  left: -8rem;
 }
 
 .wrapper {
   flex: 1 0 auto;
 }
+
+.vue-grid-layout {
+  border: 1px solid lightgray;
+}
+
 </style>
