@@ -1,16 +1,17 @@
 <template>
   <div class="container">
     <aside :class="{hide}" @mouseenter="hide = false" @mouseleave="hide = true">
+    <button class="add-layout" @click="addLayout('top')"> <i class="fa fa-plus" aria-hidden="true" /> Top </button>
       <div
         v-for="(item, idx) in templateItems"
         :key="idx"
         class="template-item item"
         :class="{grid: item.type === 'grid'}"
         grid="drawer"
-        :style="{ background: item.color, border: item.border }"
+        :style="{ background: item.color, border: item.border, height: (item.h * rowHeight + 'px')  }"
       />
+    <button class="add-layout" @click="addLayout('bottom')"> <i class="fa fa-plus" aria-hidden="true" /> Bottom </button>
     </aside>
-    <button @click="addLayout('top')"> Add layout </button>
     <div class="wrapper">
       <grid-layout
         ref="main"
@@ -25,7 +26,7 @@
         :breakpoints="{ lg: 996, md: 786, sm: 768, xs: 480, xxs: 0 }"
         :cols="{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }"
         :margin="[0,0]"
-        :auto-size="false"
+        :auto-size="true"
         @container-resized="mainContainerResized"
         @resize="mainContainerResized"
       >
@@ -83,10 +84,10 @@
                 :w="item.w"
                 :h="item.h"
                 :i="item.i"
-                :style="{ outline: item.isTemplate ? '2px dashed darkmagenta' : '' }"
                 @click="editorShow = true"
                 @container-resized="containerResized"
               >
+                <!-- :style="{ outline: item.isTemplate ? '2px dashed darkmagenta' : '' }" -->
                 <!-- @move="moveEvent(i, item)"
               @moved="movedEvent" -->
                 <div
@@ -102,7 +103,6 @@
         </grid-item>
       </grid-layout>
     </div>
-    <button @click="addLayout('bottom')"> Add layout </button>
   </div>
 </template>
 
@@ -127,17 +127,12 @@ export default {
       maxRows: Infinity,
       // ------------------------ //
       templateItems: [
-        {
-          color: 'aqua'
-        },
-        {
-          color: 'salmon'
-        }
-
+        { w: 2, h: 2, x: 0, y: 0, i: 0, color: 'salmon' },
+        { w: 2, h: 2, x: 0, y: 0, i: 0, color: 'aqua' }
       ],
       layouts: [
         { w: 12, h: 10, x: 0, y: 0, i: 0, items: [{ w: 2, h: 2, x: 0, y: 0, i: 0, color: 'salmon' }], color: 'lightgreen' },
-        { w: 12, h: 10, x: 0, y: 10, i: 1, items: [], color: '#fff7bd' }
+        { w: 12, h: 10, x: 0, y: 10, i: 1, items: [{ w: 2, h: 2, x: 0, y: 0, i: 0, color: 'aqua' }], color: '#fff7bd' }
       ],
       activeGrid: null,
       activeItem: null,
@@ -157,13 +152,14 @@ export default {
     registerInteractions() {
       let entered = false
       let copy = null
+      let movingGridDeltaX = 0
       let movingGridDeltaY = 0
       let _this = this
       let x = 0
       let y = 0
       let position = { x: 0, y: 0 }
-
-
+      let offset = { x: 0, y: 0 }
+      id = 999
       // Copy drag move emitted value
 
       interact('.template-item').draggable({
@@ -171,27 +167,41 @@ export default {
         listeners: {
           start(event) {
             copy = event.target.cloneNode(true)
-            event.target.appendChild(copy)
+            document.body.appendChild(copy)
             movingGridDeltaY = event.target.getBoundingClientRect().y
             _this.hide = true
+            offset = {x: Math.round(event.currentTarget.getBoundingClientRect().left), y: Math.round(event.currentTarget.getBoundingClientRect().top)}
           },
           move(event) {
+            const activeGridComp = _this.$refs['gridLayout'][_this.activeGrid ? _this.activeGrid : 0]
+            // console.log(event);
             position.x += event.dx
             position.y += event.dy
+
+            copy.style.left = offset.x + 'px'
+            copy.style.top = offset.y + 'px'
             copy.style.transform = `translate(${position.x}px, ${position.y}px)`
             copy.style.outline = '1px dashed darkmagenta'
+            copy.style.position = 'fixed'
             let { x: _x, y: _y } = (_this.calcXY(position.y + movingGridDeltaY - _this.mainDY(), position.x - _this.mainDX()))
             x = _x
             y = _y
             if (entered) {
+            // TODO: handle all of this by starting a fake event in the actual grid layout
+            // activeGridComp.placeholder.i = id;
+            // activeGridComp.placeholder.x = position.x;
+            // activeGridComp.placeholder.y = position.y;
+            // activeGridComp.placeholder.w = 2;
+            // activeGridComp.placeholder.h = 2;
               let currentDragGridData = _this.layouts[_this.activeGrid].items[_this.layouts[_this.activeGrid].items.length - 1]
               currentDragGridData.x = x
               currentDragGridData.y = y
-              _this.$refs['gridLayout'][_this.activeGrid].eventBus.$emit('dragEvent', 'dragmove', id, x, y, _this.defaultGridH, _this.defaultGridW)
+              activeGridComp.dragging = true
+              activeGridComp.dragEvent('dragmove', id, x, y, _this.defaultGridH, _this.defaultGridW)
             }
           },
           end(event) {
-            event.target.removeChild(copy)
+            document.body.removeChild(copy)
             copy = null
             movingGridDeltaY = 0
             position = { x: 0, y: 0 }
@@ -209,6 +219,10 @@ export default {
           let isTemplate = event.relatedTarget.classList.contains('template-item')
           _this.activeGrid = event.currentTarget.attributes.grid.value
 
+          let { x: _x, y: _y } = (_this.calcXY(position.y + movingGridDeltaY - _this.mainDY(), position.x - _this.mainDX()))
+            x = _x
+            y = _y
+
           entered = true
           console.log('ondragenter', _this.activeGrid, { isTemplate })
 
@@ -223,11 +237,15 @@ export default {
             isTemplate,
             color
           })
+
+              _this.$refs['gridLayout'][_this.activeGrid ? _this.activeGrid : 0].dragEvent('dragstart', id, x, y, _this.defaultGridH, _this.defaultGridW)
         },
         ondragleave() {
           entered = false
           let index = _this.layouts[_this.activeGrid].items.length - 1
           _this.layouts[_this.activeGrid].items.splice(index, 1)
+          _this.$refs['gridLayout'][_this.activeGrid ? _this.activeGrid : 0].dragEvent('dragend', id, x, y, _this.defaultGridH, _this.defaultGridW)
+
         },
         ondrop() {
           //   entered = false
@@ -239,6 +257,9 @@ export default {
           entered = false
           _this.layouts[_this.activeGrid].items[_this.layouts[_this.activeGrid].items.length - 1].isTemplate = false
           _this.activeGrid = null
+
+          _this.$refs['gridLayout'][_this.activeGrid ? _this.activeGrid : 0].dragEvent('dragend', id, x, y, _this.defaultGridH, _this.defaultGridW)
+
         },
         ondropdeactivate(event) {
           event.target.classList.remove('drop-active')
@@ -350,7 +371,7 @@ export default {
 }
 
 aside {
-  width: 180px;
+  width: 200px;
   padding: 10px;
   border: 1px solid salmon;
   margin-right: 20px;
@@ -361,6 +382,14 @@ aside {
   background: lightblue;
   height: 100vh;
   transition: transform 0.25s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+button.add-layout {
+  margin-bottom: 1rem;
 }
 
 aside.hide {
@@ -414,6 +443,7 @@ aside.hide {
   user-select: none;
   margin-bottom: 10px;
   height: 100px;
+  width: 180px;
 }
 
 .vue-grid-item {
@@ -421,18 +451,17 @@ aside.hide {
   user-select: none;
 }
 
-.editor {
+/* .editor {
   position: absolute;
   top: 10px;
   right: 10px;
   height: 800px;
   width: 200px;
   border: 1px solid darkmagenta;
-}
+} */
 
-.drop-active /deep/ .vue-grid-item.vue-grid-placeholder {
+/* .drop-active /deep/ .vue-grid-item.vue-grid-placeholder {
   display: none;
-}
-
+} */
 
 </style>
