@@ -24,7 +24,7 @@
         @move="moveEvent(item)"
         @resized="resizedEvent"
         @container-resized="containerResizedEvent"
-        @moved="movedEvent"
+        @move-event="movedEvent"
       >
         <div
           v-if="!preview"

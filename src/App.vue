@@ -1,23 +1,23 @@
 <template>
   <div id="app">
-    <router-view/>
+    <router-view />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'app',
+  name: 'App',
 
-  methods: {
-
-  },
-
-  mounted () {
+  mounted() {
     console.log(this.$root)
 
     this.$root.$on('test', () => {
       console.log('test')
     })
+  },
+
+  methods: {
+
   }
 }
 </script>
