@@ -1,16 +1,16 @@
 <template>
   <div class="container">
     <aside :class="{hide}" @mouseenter="hide = false" @mouseleave="hide = true">
-    <button class="add-layout" @click="addLayout('top')"> <i class="fa fa-plus" aria-hidden="true" /> Top </button>
+      <button class="add-layout" @click="addLayout('top')"> Top </button>
       <div
         v-for="(item, idx) in templateItems"
         :key="idx"
         class="template-item item"
         :class="{grid: item.type === 'grid'}"
         grid="drawer"
-        :style="{ background: item.color, border: item.border, height: (item.h * rowHeight + 'px')  }"
+        :style="{ background: item.color, border: item.border, height: (item.h * rowHeight + 'px') }"
       />
-    <button class="add-layout" @click="addLayout('bottom')"> <i class="fa fa-plus" aria-hidden="true" /> Bottom </button>
+      <button class="add-layout" @click="addLayout('bottom')">Bottom </button>
     </aside>
     <div class="wrapper">
       <grid-layout
@@ -113,7 +113,7 @@ let id = 0
 export default {
   name: 'NewGridView',
   components: {
-    Gridlayout: VueGridlayout.Gridlayout,
+    GridLayout: VueGridlayout.GridLayout,
     GridItem: VueGridlayout.GridItem
   },
   data() {
@@ -170,7 +170,7 @@ export default {
             document.body.appendChild(copy)
             movingGridDeltaY = event.target.getBoundingClientRect().y
             _this.hide = true
-            offset = {x: Math.round(event.currentTarget.getBoundingClientRect().left), y: Math.round(event.currentTarget.getBoundingClientRect().top)}
+            offset = { x: Math.round(event.currentTarget.getBoundingClientRect().left), y: Math.round(event.currentTarget.getBoundingClientRect().top) }
           },
           move(event) {
             const activeGridComp = _this.$refs['gridLayout'][_this.activeGrid ? _this.activeGrid : 0]
@@ -220,8 +220,8 @@ export default {
           _this.activeGrid = event.currentTarget.attributes.grid.value
 
           let { x: _x, y: _y } = (_this.calcXY(position.y + movingGridDeltaY - _this.mainDY(), position.x - _this.mainDX()))
-            x = _x
-            y = _y
+          x = _x
+          y = _y
 
           entered = true
           console.log('ondragenter', _this.activeGrid, { isTemplate })
@@ -238,14 +238,13 @@ export default {
             color
           })
 
-              _this.$refs['gridLayout'][_this.activeGrid ? _this.activeGrid : 0].dragEvent('dragstart', id, x, y, _this.defaultGridH, _this.defaultGridW)
+          _this.$refs['gridLayout'][_this.activeGrid ? _this.activeGrid : 0].dragEvent('dragstart', id, x, y, _this.defaultGridH, _this.defaultGridW)
         },
         ondragleave() {
           entered = false
           let index = _this.layouts[_this.activeGrid].items.length - 1
           _this.layouts[_this.activeGrid].items.splice(index, 1)
           _this.$refs['gridLayout'][_this.activeGrid ? _this.activeGrid : 0].dragEvent('dragend', id, x, y, _this.defaultGridH, _this.defaultGridW)
-
         },
         ondrop() {
           //   entered = false
@@ -259,7 +258,6 @@ export default {
           _this.activeGrid = null
 
           _this.$refs['gridLayout'][_this.activeGrid ? _this.activeGrid : 0].dragEvent('dragend', id, x, y, _this.defaultGridH, _this.defaultGridW)
-
         },
         ondropdeactivate(event) {
           event.target.classList.remove('drop-active')
